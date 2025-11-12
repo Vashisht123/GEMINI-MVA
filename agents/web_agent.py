@@ -1,14 +1,13 @@
 from utils.gemini_setup import get_gemini_model
-import requests
 
 class WebAgent:
     def __init__(self):
         self.model = get_gemini_model(agent_type="text")
 
     def handle(self, prompt: str) -> str:
+        full_prompt = f"Provide information about: {prompt}"
         try:
-            # Optional: use Gemini to summarize prompt / info
-            response = self.model.generate_content(f"Provide information about: {prompt}")
+            response = self.model.generate_content(full_prompt)
             return response.text.strip()
         except Exception as e:
             return f"WebAgent error: {e}"
