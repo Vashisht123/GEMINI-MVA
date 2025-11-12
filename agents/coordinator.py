@@ -15,18 +15,18 @@ class Coordinator:
         text_lower = text.lower()
         self.memory.add("user", text)
 
-        if any(k in text_lower for k in ["code", "python", "error", "program"]):
+        if any(k in text_lower for k in ["code", "python", "program"]):
             result = self.code_agent.handle(text)
-            agent_name = "code"
+            agent_name = "CODE"
         elif any(k in text_lower for k in ["plan", "schedule", "todo", "day", "reminder"]):
             result = self.planner_agent.handle(text)
-            agent_name = "planner"
+            agent_name = "PLANNER"
         elif any(k in text_lower for k in ["search", "find", "lookup", "news"]):
             result = self.web_agent.handle(text)
-            agent_name = "web"
+            agent_name = "WEB"
         else:
             result = self.chat_agent.handle(text)
-            agent_name = "chat"
+            agent_name = "CHAT"
 
         self.memory.add(agent_name, result)
         return {"agent": agent_name, "text": result}
