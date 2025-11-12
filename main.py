@@ -28,24 +28,23 @@ def display_chat():
             st.chat_message("assistant").markdown(f"**{role}:** {text}")
 
 # Input box
-with st.chat_input("Type your message here...") as user_input:
-    if user_input:
-        # Add user message
-        st.session_state.chat_history.append(("You", user_input))
-        display_chat()
-        
-        # Add typing animation
-        placeholder = st.empty()
-        with placeholder.container():
-            st.chat_message("assistant").markdown("Typing...")
+# Input box
+user_input = st.text_input("Type your message here:")
 
-        # Get agent response
-        result = coordinator.route(user_input)
-        time.sleep(0.5)  # simulate typing delay
+if st.button("Send") and user_input:
+    # Add user message
+    st.session_state.chat_history.append(("You", user_input))
+    display_chat()
+    
+    # Typing simulation
+    placeholder = st.empty()
+    with placeholder.container():
+        st.write("🤖 Agent is typing...")
 
-        # Remove typing and add real response
-        placeholder.empty()
-        st.session_state.chat_history.append((result["agent"], result["text"]))
-        display_chat()
+    result = coordinator.route(user_input)
+    placeholder.empty()
+    st.session_state.chat_history.append((result["agent"], result["text"]))
+    display_chat()
+
 
 
