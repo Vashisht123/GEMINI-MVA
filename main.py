@@ -14,41 +14,40 @@ st.set_page_config(
 
 st.title("🤖 Gemini Multi-Agent Assistant")
 
-# --- Initialize session state keys ---
-st.session_state.setdefault("chat_history", [])
-st.session_state.setdefault("input_text", "")
+# --- Initialize chat history ---
+if "chat_history" not in st.session_state:
+    st.session_state["chat_history"] = []
 
-# --- Function to display chat history ---
+# --- Function to display chat ---
 def display_chat():
-    for role, text in st.session_state.chat_history:
+    for role, text in st.session_state["chat_history"]:
         if role == "You":
             st.chat_message("user").markdown(text)
         else:
             st.chat_message("assistant").markdown(f"**{role}:** {text}")
 
-# --- Input box bound to session state ---
-user_input = st.text_input("Type your message here:", key="input_text")
+# --- Input box ---
+user_input = st.text_input("Type your message here:")
 
-# --- Handle Send button safely ---
-if st.button("Send") and st.session_state.input_text.strip() != "":
+# --- Handle Send button ---
+if st.button("Send") and user_input.strip() != "":
     # Append user message
-    st.session_state.chat_history.append(("You", st.session_state.input_text.strip()))
+    st.session_state["chat_history"].append(("You", user_input.strip()))
 
-    display_chat()  # show user message immediately
+    display_chat()  # Show user message immediately
 
     # Typing simulation
     placeholder = st.empty()
     with placeholder.container():
         st.write("🤖 Agent is typing...")
 
-    # Get agent response from Coordinator
-    result = coordinator.route(st.session_state.input_text.strip())
+    # Get agent response
+    result = coordinator.route(user_input.strip())
     placeholder.empty()
 
     # Append agent response
-    st.session_state.chat_history.append((result["agent"], result["text"]))
+    st.session_state["chat_history"].append((result["agent"], result["text"]))
 
-    display_chat()  # show agent response
+    display_chat()  # Show agent response
 
-    # Clear input safely
-    st.session_state.input_text = ""
+# ✅ NOTE: Do NOT reset the text_input manually. Streamlit handles it.
