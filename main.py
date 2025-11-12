@@ -15,10 +15,10 @@ st.set_page_config(
 st.title("🤖 Gemini Multi-Agent Assistant")
 
 # --- Initialize session state ---
-if "chat_history" not in st.session_state:
-    st.session_state["chat_history"] = []
+st.session_state.setdefault("chat_history", [])
+st.session_state.setdefault("last_sent", None)  # Tracks last user message sent
 
-# --- Function to display chat history ---
+# --- Display chat history ---
 def display_chat():
     for role, text in st.session_state["chat_history"]:
         if role == "You":
@@ -26,26 +26,26 @@ def display_chat():
         else:
             st.chat_message("assistant").markdown(f"**{role}:** {text}")
 
-# --- Input box (do not bind to session state key) ---
+# --- Input box ---
 user_input = st.text_input("Type your message here:")
 
-# --- Send button handler ---
+# --- Send button ---
 if st.button("Send") and user_input.strip() != "":
-    # Append user message once
-    st.session_state["chat_history"].append(("You", user_input.strip()))
+    # Only append if this message is new
+    if user_input.strip() != st.session_state["last_sent"]:
+        st.session_state["chat_history"].append(("You", user_input.strip()))
+        st.session_state["last_sent"] = user_input.strip()  # Mark as sent
 
-    display_chat()  # Show user message
+        display_chat()
 
-    # Typing simulation
-    placeholder = st.empty()
-    with placeholder.container():
-        st.write("🤖 Agent is typing...")
+        # Typing simulation
+        placeholder = st.empty()
+        with placeholder.container():
+            st.write("🤖 Agent is typing...")
 
-    # Get agent response
-    result = coordinator.route(user_input.strip())
-    placeholder.empty()
+        # Get agent response
+        result = coordinator.route(user_input.strip())
+        placeholder.empty()
 
-    # Append agent response
-    st.session_state["chat_history"].append((result["agent"], result["text"]))
-
-    display_chat()  # Show agent response
+        st.session_state["chat_history"].append((result["agent"], result["text"]))
+        display_chat()
