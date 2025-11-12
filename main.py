@@ -16,7 +16,7 @@ st.title("🤖 Gemini Multi-Agent Assistant")
 
 # --- Initialize session state ---
 st.session_state.setdefault("chat_history", [])
-st.session_state.setdefault("last_sent", None)  # Tracks last user message sent
+st.session_state.setdefault("last_sent", None)  # tracks last user message
 
 # --- Display chat history ---
 def display_chat():
@@ -31,10 +31,10 @@ user_input = st.text_input("Type your message here:")
 
 # --- Send button ---
 if st.button("Send") and user_input.strip() != "":
-    # Only append if this message is new
+    # Only append if message is new
     if user_input.strip() != st.session_state["last_sent"]:
         st.session_state["chat_history"].append(("You", user_input.strip()))
-        st.session_state["last_sent"] = user_input.strip()  # Mark as sent
+        st.session_state["last_sent"] = user_input.strip()
 
         display_chat()
 
