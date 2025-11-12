@@ -28,22 +28,26 @@ def display_chat():
             st.chat_message("assistant").markdown(f"**{role}:** {text}")
 
 # Input boX
-user_input = st.text_input("Type your message here:")
 
+user_input = st.text_input("Type your message here:", key="input")
+
+# Only append if Send button is clicked
 if st.button("Send") and user_input:
-    # Add user message
+    # Add user message once
     st.session_state.chat_history.append(("You", user_input))
-    display_chat()
     
+    # Clear input box after sending
+    st.session_state.input = ""  
+
+    display_chat()
+
     # Typing simulation
     placeholder = st.empty()
     with placeholder.container():
         st.write("🤖 Agent is typing...")
 
+    # Get agent response
     result = coordinator.route(user_input)
     placeholder.empty()
     st.session_state.chat_history.append((result["agent"], result["text"]))
     display_chat()
-
-
-
