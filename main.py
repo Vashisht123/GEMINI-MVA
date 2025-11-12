@@ -47,3 +47,5 @@ with st.chat_input("Type your message here...") as user_input:
         placeholder.empty()
         st.session_state.chat_history.append((result["agent"], result["text"]))
         display_chat()
+
+
