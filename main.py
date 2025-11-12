@@ -17,16 +17,24 @@ st.title("🤖 Gemini Multi-Agent Assistant")
 # --- Initialize session state ---
 if "chat_history" not in st.session_state:
     st.session_state["chat_history"] = []
-if "user_input" not in st.session_state:
-    st.session_state["user_input"] = ""
 
-# --- Input box bound to session state ---
-user_input = st.text_input("Type your message here:", key="user_input")
+# --- Function to display chat history ---
+def display_chat():
+    for role, text in st.session_state["chat_history"]:
+        if role == "You":
+            st.chat_message("user").markdown(text)
+        else:
+            st.chat_message("assistant").markdown(f"**{role}:** {text}")
+
+# --- Input box (do not bind to session state key) ---
+user_input = st.text_input("Type your message here:")
 
 # --- Send button handler ---
-if st.button("Send") and st.session_state.user_input.strip() != "":
+if st.button("Send") and user_input.strip() != "":
     # Append user message once
-    st.session_state.chat_history.append(("You", st.session_state.user_input.strip()))
+    st.session_state["chat_history"].append(("You", user_input.strip()))
+
+    display_chat()  # Show user message
 
     # Typing simulation
     placeholder = st.empty()
@@ -34,18 +42,10 @@ if st.button("Send") and st.session_state.user_input.strip() != "":
         st.write("🤖 Agent is typing...")
 
     # Get agent response
-    result = coordinator.route(st.session_state.user_input.strip())
+    result = coordinator.route(user_input.strip())
     placeholder.empty()
 
     # Append agent response
-    st.session_state.chat_history.append((result["agent"], result["text"]))
+    st.session_state["chat_history"].append((result["agent"], result["text"]))
 
-    # Clear input safely by resetting session state key
-    st.session_state.user_input = ""
-
-# --- Display chat history ---
-for role, text in st.session_state.chat_history:
-    if role == "You":
-        st.chat_message("user").markdown(text)
-    else:
-        st.chat_message("assistant").markdown(f"**{role}:** {text}")
+    display_chat()  # Show agent response
