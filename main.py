@@ -14,9 +14,8 @@ st.set_page_config(
 
 st.title("🤖 Gemini Multi-Agent Assistant")
 
-# --- Initialize session state ---
+# --- Initialize chat history ---
 st.session_state.setdefault("chat_history", [])
-st.session_state.setdefault("last_sent", None)  # tracks last user message
 
 # --- Display chat history ---
 def display_chat():
@@ -26,16 +25,16 @@ def display_chat():
         else:
             st.chat_message("assistant").markdown(f"**{role}:** {text}")
 
-# --- Input box ---
-user_input = st.text_input("Type your message here:")
+display_chat()
 
-# --- Send button ---
-if st.button("Send") and user_input.strip() != "":
-    # Only append if message is new
-    if user_input.strip() != st.session_state["last_sent"]:
+# --- Use form to handle input safely ---
+with st.form(key="chat_form", clear_on_submit=True):
+    user_input = st.text_input("Type your message here:")
+    submitted = st.form_submit_button("Send")
+
+    if submitted and user_input.strip() != "":
+        # Append user message
         st.session_state["chat_history"].append(("You", user_input.strip()))
-        st.session_state["last_sent"] = user_input.strip()
-
         display_chat()
 
         # Typing simulation
