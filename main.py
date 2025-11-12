@@ -1,28 +1,49 @@
-from utils.memory import Memory
+import streamlit as st
 from agents.coordinator import Coordinator
+from utils.memory import Memory
+import time
 
-def run_console():
-    print("🤖 Multi-Agent Assistant (Gemini). Type 'exit' or 'quit' to stop.\n")
-    memory = Memory()
-    coordinator = Coordinator(memory)
+# Initialize memory and coordinator
+memory = Memory()
+coordinator = Coordinator(memory)
 
-    while True:
-        try:
-            user_input = input("You: ").strip()
-        except (EOFError, KeyboardInterrupt):
-            print("\nGoodbye!")
-            break
+st.set_page_config(
+    page_title="Gemini Multi-Agent Assistant",
+    layout="centered",
+)
 
-        if not user_input:
-            continue
-        if user_input.lower() in ("exit", "quit"):
-            break
+st.title("🤖 Gemini Multi-Agent Assistant")
 
-        try:
-            result = coordinator.route(user_input)
-            print(f"[{result['agent'].upper()}] {result['text']}\n")
-        except Exception as e:
-            print(f"⚠️ Error: {e}\n")
+# Session state for chat history
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
 
-if __name__ == "__main__":
-    run_console()
+# Function to display chat history
+def display_chat():
+    for msg in st.session_state.chat_history:
+        role, text = msg
+        if role == "You":
+            st.chat_message("user").markdown(text)
+        else:
+            st.chat_message("assistant").markdown(f"**{role}:** {text}")
+
+# Input box
+with st.chat_input("Type your message here...") as user_input:
+    if user_input:
+        # Add user message
+        st.session_state.chat_history.append(("You", user_input))
+        display_chat()
+        
+        # Add typing animation
+        placeholder = st.empty()
+        with placeholder.container():
+            st.chat_message("assistant").markdown("Typing...")
+
+        # Get agent response
+        result = coordinator.route(user_input)
+        time.sleep(0.5)  # simulate typing delay
+
+        # Remove typing and add real response
+        placeholder.empty()
+        st.session_state.chat_history.append((result["agent"], result["text"]))
+        display_chat()
