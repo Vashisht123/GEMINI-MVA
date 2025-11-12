@@ -14,30 +14,28 @@ st.set_page_config(
 
 st.title("🤖 Gemini Multi-Agent Assistant")
 
-# Session state for chat history
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
+# --- Session state initialization ---
+st.session_state.setdefault("chat_history", [])
+st.session_state.setdefault("input", "")
 
-# Function to display chat history
+# --- Function to display chat history ---
 def display_chat():
-    for msg in st.session_state.chat_history:
-        role, text = msg
+    for role, text in st.session_state.chat_history:
         if role == "You":
             st.chat_message("user").markdown(text)
         else:
             st.chat_message("assistant").markdown(f"**{role}:** {text}")
 
-# Input boX
-
+# --- Input box ---
 user_input = st.text_input("Type your message here:", key="input")
 
-# Only append if Send button is clicked
+# --- Handle Send button ---
 if st.button("Send") and user_input:
-    # Add user message once
+    # Append user message
     st.session_state.chat_history.append(("You", user_input))
-    
-    # Clear input box after sending
-    st.session_state.input = ""  
+
+    # Clear input safely
+    st.session_state["input"] = ""
 
     display_chat()
 
@@ -49,5 +47,7 @@ if st.button("Send") and user_input:
     # Get agent response
     result = coordinator.route(user_input)
     placeholder.empty()
+
+    # Append agent response
     st.session_state.chat_history.append((result["agent"], result["text"]))
     display_chat()
