@@ -27,8 +27,7 @@ def display_chat():
         else:
             st.chat_message("assistant").markdown(f"**{role}:** {text}")
 
-# Input box
-# Input box
+# Input boX
 user_input = st.text_input("Type your message here:")
 
 if st.button("Send") and user_input:
